@@ -5,7 +5,6 @@ from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import Screen
-from requests import session
 
 from Classes.Student_Roster import ROSTER
 from Classes.Session import Session
