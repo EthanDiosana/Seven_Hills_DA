@@ -34,7 +34,7 @@ class Student():
         """Adds a session. Automatically records date and time."""
         current_number_of_sessions = len(self.sessions)
         new_session = Session()
-        self.sessions[current_number_of_sessions + 1] = new_session
+        self.sessions[str(current_number_of_sessions + 1)] = new_session.to_dictionary()
 
     def to_string(self):
         """Prints all of the Student information as a reasable string."""

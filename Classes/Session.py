@@ -25,10 +25,16 @@ class Session():
     def to_dictionary(self):
         """Returns a dictionary of the Session information."""
         session_info = {
-            "date_and_time" : self.date_and_time,
+            "date_string" : self.date_string,
             "notes" : self.notes
         }
         return session_info
+
+    def from_dictionary(self, dictionary):
+        new_session = Session()
+        new_session.date_string = dictionary["date_string"]
+        new_session.notes = dictionary["notes"]
+        return new_session
 
     def to_string(self):
         """Prints the Session information as a readable string."""

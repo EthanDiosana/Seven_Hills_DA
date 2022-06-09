@@ -5,6 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.screenmanager import Screen
 
 from settings import *
 from Classes.Student import *
@@ -129,3 +130,14 @@ class Page_1(BoxLayout):
         self.add_widget(self.student_roster)
 
         self.add_widget(Create_Student_Button())     
+
+class First_Window(Screen):
+    name="first"
+
+    def on_pre_enter(self):
+        ROSTER.load_students()
+        self.page = Page_1()
+        self.add_widget(self.page)
+
+    def on_pre_leave(self):
+        self.remove_widget(self.page)

@@ -5,42 +5,61 @@ from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import Screen
+from requests import session
 
 from Classes.Student_Roster import ROSTER
+from Classes.Session import Session
 
 from settings import *
 from Global import WINDOW_MANAGER
 
+class Text_Input_Field(TextInput):
+
+    def insert_text(self, substring, from_undo=False):
+        print("aaaaa")
+        return super().insert_text(substring, from_undo)
+
+
 class Session_Widget(BoxLayout):
 
     def __init__(self, session):
-        super(Sessions_Page, self).__init__()
+        super(Session_Widget, self).__init__()
         self.orientation = "vertical"
 
         self.expanded = False
 
-        top_bar = BoxLayout(orientation="horizontal")
-        self.notes_grid = BoxLayout(orientation="vertical")
+        self.size_hint = (1, None)
+        
+        self.top_bar = BoxLayout(orientation="horizontal")
+        self.top_bar.size_hint = (1, 0.5)
 
         label = Label(text=session.date_string)
-        expand_button = Button(text="expand", on_press=self.expand_collapse)
-        notes_area = TextInput(text=session.notes)
+        label.size_hint = (None, 1)
+        label2 = Label(text="")
+        expand_button = Button(text="expand", on_release=self.expand_collapse)
+        expand_button.size_hint = (None, 1)
 
-        top_bar.add_widget(label)
-        top_bar.add_widget(expand_button)
+        self.notes_area = Text_Input_Field(text=session.notes)
 
-        self.notes_grid.add_widget(notes_area)
 
-        self.add_widget(top_bar)
-        self.add_widget(self.notes_grid)
+        self.top_bar.add_widget(label)
+        self.top_bar.add_widget(label2)
+        self.top_bar.add_widget(expand_button)
+
+        self.add_widget(self.top_bar)
+        self.add_widget(self.notes_area)
 
     def expand_collapse(self, instance):
 
         if(not self.expanded):
-            self.notes_grid.size_hint = (1,1)
+            instance.text = "collapse"
+            self.height = 200
+            self.notes_area.height = 200
             self.expanded = True
         else:
-            self.notes_grid.size_hint = (0,0)
+            instance.text = "expand"
+            self.height = 100
+            self.notes_area.height = 50
             self.expanded = False
 
 class Session_Roster(ScrollView):
@@ -54,30 +73,24 @@ class Session_Roster(ScrollView):
         
         CURRENT_STUDENT = ROSTER.current_student
 
-        for session in CURRENT_STUDENT.sessions.keys():
-            self.grid.add_widget(Session_Widget(session))
+        for session in CURRENT_STUDENT.sessions:
+            self.grid.add_widget(Session_Widget(Session.from_dictionary(self, CURRENT_STUDENT.sessions[session])))
         
         self.add_widget(self.grid)      
 
-class Session_Page_New_Session_Button(BoxLayout):
-
-    """A button to create a new Session."""
+class New_Session_Button(Button):
+    """The button to create a new Session for the given Student."""
 
     def __init__(self):
-        super(Session_Page_New_Session_Button, self).__init__()
-        self.orientation="horizontal"
-        self.padding = 10
+        super(New_Session_Button, self).__init__()
+        self.text="new session"
+        self.bind(on_release=self.handler)
 
-        self.size_hint=create_student_button_size_hint
-
-        self.button = Button(text="new session"
-        , font_size=create_student_button_font_size
-        , on_press=self.new_session)
-
-        self.add_widget(self.button)
-    
-    def new_session(self):
-        pass
+    def handler(self, instance):
+        ROSTER.current_student.add_session()
+        ROSTER.current_student.save_information()
+        WINDOW_MANAGER.current = "first"
+        WINDOW_MANAGER.current = "sessions_window"
 
 class Sessions_Page(BoxLayout):
 
@@ -87,9 +100,10 @@ class Sessions_Page(BoxLayout):
         
         top_bar_grid = BoxLayout(orientation="horizontal")
         back_button = Button(text="back", size_hint=student_page_info_back_button_size_hint, on_press=self.back)
-        new_session_button = Button(text="new session")
+        new_session_button = New_Session_Button()
         top_bar_grid.add_widget(back_button)
         top_bar_grid.add_widget(new_session_button)
+        top_bar_grid.size_hint = (1, None)
         session_roster = Session_Roster()
 
         self.add_widget(top_bar_grid)
@@ -103,6 +117,10 @@ class Sessions_Window(Screen):
     name = "sessions_window"
     
     def on_pre_enter(self):
-        print("Entering sessions window.")
+        print("Entering Sessions Window.")
         self.page = Sessions_Page(ROSTER.current_student)
         self.add_widget(self.page)
+
+    def on_pre_leave(self):
+        self.remove_widget(self.page)
+        print("Exiting Sessions Window.")
