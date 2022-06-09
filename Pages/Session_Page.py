@@ -1,4 +1,3 @@
-from tkinter import CURRENT
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
@@ -72,16 +71,13 @@ class Session_Page_New_Session_Button(BoxLayout):
         self.size_hint=create_student_button_size_hint
 
         self.button = Button(text="new session"
-        , font_size=create_student_button_font_size)
-        self.button.bind(on_press=self.new_button)
+        , font_size=create_student_button_font_size
+        , on_press=self.new_session)
 
         self.add_widget(self.button)
     
-    def new_student(self, instance):
-        ROSTER.current_student = None
-        WINDOW_MANAGER.current = "second"
-        WINDOW_MANAGER.transition.direction = "left"
-    pass
+    def new_session(self):
+        pass
 
 class Sessions_Page(BoxLayout):
 
